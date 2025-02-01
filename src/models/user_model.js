@@ -10,4 +10,8 @@ const userSchema = new Schema({
         required: true,
         min: 8
     }
-})
+});
+
+const User = model("user", userSchema);
+
+export default User;

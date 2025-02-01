@@ -1,5 +1,6 @@
 import User from "../models/user_model.js";
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken";
 
 const store = async(req, res) => {
     try{
@@ -9,9 +10,23 @@ const store = async(req, res) => {
     }
 }
 
+const generateToken = (user) => {
+    return jwt.sign({username: user.username}, process.env.JWT_PRIVATE_KEY, {expiresIn: "1h"});
+}
+
 const login = async(req, res) => {
     try{
-
+        const user = req.body;
+        const userExist = await User.findOne({ username: user.username });
+        if (!userExist) {
+            return res.sendStatus(400).json("Usuário inexistente.");
+        }
+        const isMatch = bcrypt.compare(password, userExist.password);
+        if(!isMatch){
+            return res.sendStatus(400).json("Senha incorreta.");
+        }
+        const token = generateToken(user);
+        res.status(200).json({ token });
     } catch(error){
 
     }
